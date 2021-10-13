@@ -22,7 +22,7 @@ common_event = StructType([ \
 
 access_key = '<storage-access-key>'
 
-spark = SparkSession.builder.master('local').appName('app').config("fs.azure.account.key.exchangedata5000.blob.core.windows.net", access_key).config("spark.hadoop.fs.azure.account.key.exchangedata5000.blob.core.windows.net", access_key).getOrCreate()
+spark = SparkSession.builder.master('local').appName('app').config("fs.azure.account.key.<storage-account-name>.blob.core.windows.net", access_key).config("spark.hadoop.fs.azure.account.key.<storage-account-name>.blob.core.windows.net", access_key).getOrCreate()
 sc = spark.sparkContext
 
 
