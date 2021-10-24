@@ -70,9 +70,19 @@ The dataframe containing both "Q" and "T" records now contains the respective pa
 
 
 
-# Part 2: Data Pre-Processing
+## Part 2: Data Pre-processing
 
 Each "T" or "Q" record can has a unique identifier that is composed of **trade_dt**, **symbol**,**exchange**, **event_tm**, and **event_seq_nb**. However, several records may be repeated, as the **arrival_tm** can be at an earlier/later time. Further, as mentioned in Part 1, there are fields in both "T" and "Q" records that are empty. Thus, this section of the pipeline uses the **latest_quote_record** and **latest_trade_record** functions to eliminate unncessary fields and to retain only the record with the most up-to-date arrival_tm. 
+
+Once the "T" and "Q" records are pre-processed, they will be partitioned by **trade_dt** and separately written to their respective output folders in the user storage container.
+
+
+
+
+
+
+
+
 
 
 
