@@ -4,7 +4,7 @@ The following project entails a pipeline which collects both JSON- and CSV-forma
 
 
 
-![Data flow diagram for equity market analysis](/Users/aarongonzalez/Desktop/GuidedCapstone/EquityDataAnalysis_Flowchart.png)
+![Data flow diagram for equity market analysis](https://github.com/Aaron-O-Gonzalez/Equity-Data-Analysis/blob/main/EquityDataAnalysis_Flowchart.png)
 
 
 
