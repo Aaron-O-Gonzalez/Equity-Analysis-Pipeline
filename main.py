@@ -22,7 +22,7 @@ common_event = StructType([ \
     StructField("partition", StringType(), False)
   ])
 
-access_key = '<storage-access-key>'
+access_key = '<access_key>'
 
 spark = SparkSession.builder.master('local').appName('app').config("fs.azure.account.key.<storage-account-name>.blob.core.windows.net", access_key).config("spark.hadoop.fs.azure.account.key.<storage-account-name>.blob.core.windows.net", access_key).getOrCreate()
 sc = spark.sparkContext
@@ -38,7 +38,7 @@ json_data = spark.createDataFrame(parsed, schema=common_event)
 trade_data = csv_data.union(json_data)
 
 output_dir = "wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/partitioned_trade_data/"
-trade_data.write.partitionBy("partition").parquet(output_dir)
+trade_data.write.partitionBy("partition").mode("overwrite").parquet(output_dir)
 
 
 '''Read in the trade and quote data from the Blob that was previously generated'''

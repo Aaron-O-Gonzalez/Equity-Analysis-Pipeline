@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Mon Nov 15 22:36:44 CST 2021:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-017d-2708-707d-000002312b58 
+on database directory /Users/aarongonzalez/Desktop/GuidedCapstone/metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@446cdf90 
+Loaded from file:/Users/aarongonzalez/miniconda3/lib/python3.8/site-packages/pyspark/jars/derby-10.12.1.1.jar
+java.vendor=Azul Systems, Inc.
+java.runtime.version=15.0.2+7
+user.dir=/Users/aarongonzalez/Desktop/GuidedCapstone
+os.name=Mac OS X
+os.arch=aarch64
+os.version=11.4
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
