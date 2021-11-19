@@ -5,26 +5,26 @@ from os.path import abspath
 import datetime
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType, DateType, TimestampType, DecimalType
 
-access_key = '7i01MHqKTvuqBGY/o32J/4j+bv26hd9e6ZrkgSf5j9fdrqsDamDd9QlnPqyrodcunccGl7ew2B19/rolvOKHDA=='
+access_key = '<access_key>'
 
 spark = SparkSession \
         .builder.master('local') \
         .appName('app') \
-        .config("fs.azure.account.key.exchangedata5000.blob.core.windows.net", access_key) \
-        .config("spark.hadoop.fs.azure.account.key.exchangedata5000.blob.core.windows.net", access_key) \
+        .config("fs.azure.account.key.<storage-account-name>.blob.core.windows.net", access_key) \
+        .config("spark.hadoop.fs.azure.account.key.<storage-account-name>.blob.core.windows.net", access_key) \
         .enableHiveSupport() \
         .getOrCreate()
 
 sc = spark.sparkContext
 
-trade_dir = "wasbs://practicecontainer1@exchangedata5000.blob.core.windows.net/latest_trade/trade_dt=2020-08-06/"
+#Read trade data from 8-06-2020 time period and create a temp view for SQL query
+trade_dir = "wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/latest_trade/trade_dt=2020-08-06/"
 df = spark.read.parquet(trade_dir)
 
 df = df.select('rec_type','symbol', 'exchange', 'event_tm', 'event_seq_nb', 'trade_pr')
 df.createOrReplaceTempView("tmp_trade_moving_avg")
 
-##Calculate 30 min moving average for stock data
-##Order by event_time and partition by the stock symbol
+#Using the trade data from 8-06-2020
 sql_query = """SELECT rec_type, symbol, exchange, event_tm, event_seq_nb, trade_pr, AVG(trade_pr) OVER (
         PARTITION BY symbol 
         ORDER BY CAST(event_tm AS timestamp) 
@@ -36,7 +36,7 @@ mov_avg_df.createOrReplaceTempView("tmp_trade_moving_avg")
 #mov_avg_df.write.saveAsTable("temp_trade_moving_avg")
 
 '''Calculate the earlier date using datetime function and retrieve records from this date'''
-previous_trade_dir = "wasbs://practicecontainer1@exchangedata5000.blob.core.windows.net/latest_trade/trade_dt=2020-08-05/"
+previous_trade_dir = "wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/latest_trade/trade_dt=2020-08-05/"
 df = spark.read.parquet(previous_trade_dir)
 
 df = df.select('rec_type','symbol', 'exchange', 'event_tm', 'event_seq_nb', 'trade_pr')
@@ -59,7 +59,7 @@ latest_trade_df.createOrReplaceTempView("tmp_last_trade")
 #latest_trade_df.write.saveAsTable("latest_trade")
 
 '''Generate a union with common schema'''
-quote_dir = 'wasbs://practicecontainer1@exchangedata5000.blob.core.windows.net/latest_quote/trade_dt=2020-08-06'
+quote_dir = 'wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/latest_quote/trade_dt=2020-08-06'
 quote_df = spark.read.parquet(quote_dir)
 
 quote_union = quote_df.unionByName(mov_avg_df, allowMissingColumns=True)
@@ -105,6 +105,6 @@ bid_pr - close_pr as bid_pr_mv, ask_pr - close_pr as ask_pr_mv
 from quote_join
 ORDER BY event_tm""")
 
-quote_final.write.mode("overwrite").parquet("wasbs://practicecontainer1@exchangedata5000.blob.core.windows.net/quote-trade-analytical/date=2020-08-06")
+quote_final.write.mode("overwrite").parquet("wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/quote-trade-analytical/date=2020-08-06")
 
 
