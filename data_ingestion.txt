@@ -1,0 +1,5 @@
+#!/bin/sh
+. ~/.bash_profile
+spark-submit \
+--jars jars/azure-storage-8.6.5.jar,jars/hadoop-azure-3.3.0.jar,jars/jetty-util-ajax.jar,jars/jetty-util.jar,jars/mysql-connector-java.jar \
+--py-files ingestion.py ingestion.py

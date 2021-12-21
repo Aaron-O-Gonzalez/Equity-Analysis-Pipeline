@@ -4,6 +4,7 @@ from pyspark.sql.functions import broadcast
 from os.path import abspath
 import datetime
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType, DateType, TimestampType, DecimalType
+from job_tracker import run_reporter_etl
 
 access_key = '<access_key>'
 
@@ -35,13 +36,14 @@ mov_avg_df = spark.sql(sql_query)
 mov_avg_df.createOrReplaceTempView("tmp_trade_moving_avg")
 #mov_avg_df.write.saveAsTable("temp_trade_moving_avg")
 
-'''Calculate the earlier date using datetime function and retrieve records from this date'''
+'''Read in data from the previous day'''
 previous_trade_dir = "wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/latest_trade/trade_dt=2020-08-05/"
 df = spark.read.parquet(previous_trade_dir)
 
 df = df.select('rec_type','symbol', 'exchange', 'event_tm', 'event_seq_nb', 'trade_pr')
 df.createOrReplaceTempView("tmp_last_trade")
 
+'''Calculate moving price average of previous day and obtain the latest non-null trade price'''
 sql_query = """WITH cte AS (SELECT rec_type, symbol, exchange, event_tm, event_seq_nb, AVG(trade_pr) OVER (
                             PARTITION BY symbol 
                             ORDER BY CAST(event_tm AS timestamp) 
@@ -105,6 +107,13 @@ bid_pr - close_pr as bid_pr_mv, ask_pr - close_pr as ask_pr_mv
 from quote_join
 ORDER BY event_tm""")
 
-quote_final.write.mode("overwrite").parquet("wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/quote-trade-analytical/date=2020-08-06")
+try:
+        quote_final.write.mode("overwrite").parquet("wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/quote-trade-analytical/date=2020-08-06")
+        success_status = True
+
+except:
+        success_status = False
+        print('Issue writing to cloud storage')
 
 
+run_reporter_etl(success_status)
