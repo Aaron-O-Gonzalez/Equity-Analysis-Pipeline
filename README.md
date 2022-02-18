@@ -90,8 +90,37 @@ sql_query = """SELECT rec_type, symbol, exchange, event_tm, event_seq_nb, trade_
      ) AS mov_avg_pr FROM tmp_trade_moving_avg""" 
 ```
 
-The trade 
+The second dataframe uses trade data from the previous date, **8/5/2020** and also applies a moving price average. However, it will also capture the latest non-null value for the moving price average, as follows:
 
+```
+sql_query = """WITH cte AS (SELECT rec_type, symbol, exchange, event_tm, event_seq_nb, AVG(trade_pr) OVER (
+                            PARTITION BY symbol 
+                            ORDER BY CAST(event_tm AS timestamp) 
+                            RANGE BETWEEN INTERVAL 30 MINUTES PRECEDING AND CURRENT ROW
+                            ) AS last_mov_avg_pr, 
+                            RANK () OVER (PARTITION BY symbol ORDER BY event_tm DESC) time_rank
+                            FROM tmp_last_trade)
+
+               SELECT rec_type, symbol, event_tm, event_seq_nb, last_mov_avg_pr 
+               FROM cte WHERE 
+               time_rank =1""" 
+```
+
+The third dataframe loads the quote data from the **8/6/2020**, which is then merged together with the moving average dataframe of the same date. The merged dataframe is then updated with the lastest trade price and latest moving average price and filtered only for quote records.
+
+Finally, the third dataframe is left-joined with the last moving average price calculated from the dataframe of data **8/5/2020** and written to a Blob output directory:
+
+```
+try:
+        quote_final.write.mode("overwrite").parquet("wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/quote-trade-analytical/date=2020-08-06")
+        success_status = True
+
+except:
+        success_status = False
+        print('Issue writing to cloud storage')
+```
+
+The output of the above statement is used for the **run_reporter_etl** function, which is an object of the **Tracker** class in the **job_tracker** file. This class connects to a MySQL database and writes the log output after each run. 
 
 
 
