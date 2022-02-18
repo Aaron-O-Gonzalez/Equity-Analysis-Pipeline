@@ -83,10 +83,10 @@ The trade and quote records that were stored from Step 2 can now be read into se
 Starting with the trade data for **86/2020** the dataframe is partitioned by trade symbol, and a moving price average is calculated at 30 minute intervals. 
 
 ```sql_query = """SELECT rec_type, symbol, exchange, event_tm, event_seq_nb, trade_pr, AVG(trade_pr) OVER ( ```
-        PARTITION BY symbol 
-        ORDER BY CAST(event_tm AS timestamp) 
-        RANGE BETWEEN INTERVAL 30 MINUTES PRECEDING AND CURRENT ROW
-     ) AS mov_avg_pr FROM tmp_trade_moving_avg""" 
+```        PARTITION BY symbol ```
+```        ORDER BY CAST(event_tm AS timestamp) ```
+```        RANGE BETWEEN INTERVAL 30 MINUTES PRECEDING AND CURRENT ROW ```
+```     ) AS mov_avg_pr FROM tmp_trade_moving_avg""" ```
 
 The trade 
 
