@@ -76,7 +76,13 @@ Each "T" or "Q" record can has a unique identifier that is composed of **trade_d
 
 Once the "T" and "Q" records are pre-processed, they will be partitioned by **trade_dt** and separately written to their respective output folders in the user storage container.
 
+## Part 3: Analytical ETL
 
+The trade and quote records that were stored from Step 2 can now be read into separate dataframes by date. 
+
+Starting with the trade data for **86/2020** the dataframe is partitioned by trade symbol, and a moving price average is calculated at 30 minute intervals. 
+
+The trade
 
 
 
